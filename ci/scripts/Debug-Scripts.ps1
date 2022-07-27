@@ -5,7 +5,7 @@ param (
 $RequiredModule = 'PSScriptAnalyzer'
 if($Null -eq (Get-Module -Name $RequiredModule)) {
     Write-Host "Installing $RequiredModule"
-    Install-Module -Name $RequiredModule -Repository 'PSGallery' -Force
+    Install-Module -Name $RequiredModule -Repository 'PSGallery' -AllowClobber -Scope 'AllUsers' -Force
 }
 
 Write-Host "Importing $RequiredModule"
