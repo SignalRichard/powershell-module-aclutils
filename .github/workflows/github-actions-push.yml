@@ -11,4 +11,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-    - run: ./Debug-Scripts.ps1 -Path "$env:GITHUB_WORKSPACE/src/Compendium.AclHelpers"
+    - name: Run PSScriptAnalyzer
+      run: |
+        ./Debug-Scripts.ps1 -Path "$env:GITHUB_WORKSPACE/src/Compendium.AclHelpers"
