@@ -7,7 +7,7 @@ if($Null -eq (Get-Module -Name $RequiredModule)) {
     Install-Module -Name $RequiredModule -Repository 'PSGallery' -Force
 }
 
-Import-Module -name $RequiredModule
+Import-Module -name $RequiredModule -Force
 
 $Result = Invoke-Scriptanalyzer -Path $Path -Recurse
 $Result | Format-Table
