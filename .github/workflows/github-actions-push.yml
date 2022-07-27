@@ -1,7 +1,7 @@
 name: compendium.aclhelpers pipeline
 on:
   push
-default:
+defaults:
   run:
     shell: pwsh
     working-directory: ./ci/scripts 
