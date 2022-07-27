@@ -9,4 +9,4 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     steps:
-    - run: ./Debug-Scripts.ps1 -Path "$env:GITHUB_WORKSPACE/src/Compendium.AclHelpers"
+    - run: dir #./Debug-Scripts.ps1 -Path "$env:GITHUB_WORKSPACE/src/Compendium.AclHelpers"
