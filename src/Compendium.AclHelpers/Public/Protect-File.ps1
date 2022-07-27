@@ -27,7 +27,7 @@ PS> Protect-File -Path './ssh_key.pem'
     )
 
     $File = Resolve-Path -Path $Path
-    
+
     if(-not(Test-Path -Path "$File" -PathType 'Leaf')) {
         throw "File $File does not exist."
     }

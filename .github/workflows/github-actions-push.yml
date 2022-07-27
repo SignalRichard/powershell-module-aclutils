@@ -1,8 +1,12 @@
 name: compendium.aclhelpers pipeline
 on:
   push
+default:
+  run:
+    shell: pwsh
+    working-directory: ./ci/scripts 
 jobs:
   Build:
     runs-on: ubuntu-latest
     steps:
-    - run: echo "Test CI push"
+    - run: ./Debug-Scripts.ps1 -Path "$env:GITHUB_WORKSPACE/src/Compendium.AclHelpers"
