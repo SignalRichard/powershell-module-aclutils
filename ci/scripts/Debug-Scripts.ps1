@@ -4,9 +4,11 @@ param (
 
 $RequiredModule = 'PSScriptAnalyzer'
 if($Null -eq (Get-Module -Name $RequiredModule)) {
+    Write-Host "Installing $RequiredModule"
     Install-Module -Name $RequiredModule -Repository 'PSGallery' -Force
 }
 
+Write-Host "Importing $RequiredModule"
 Import-Module -name $RequiredModule -Force
 
 $Result = Invoke-Scriptanalyzer -Path $Path -Recurse
