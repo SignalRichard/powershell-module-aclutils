@@ -3,13 +3,13 @@ param (
 )
 
 $RequiredModule = 'PSScriptAnalyzer'
-if($Null -eq (Get-Module -Name $RequiredModule)) {
+if($Null -eq (Get-InstalledModule -Name $RequiredModule -ErrorAction 'SilentlyContinue')) {
     Write-Host "Installing $RequiredModule"
-    Install-Module -Name $RequiredModule -Repository 'PSGallery' -AllowClobber -Scope 'AllUsers' -Force
+    Install-Module -Name $RequiredModule -Repository 'PSGallery' -AllowClobber -Force
 }
 
 Write-Host "Importing $RequiredModule"
-Import-Module -name $RequiredModule -Force
+Import-Module -Name $RequiredModule -Force
 
 $Result = Invoke-Scriptanalyzer -Path $Path -Recurse
 $Result | Format-Table
