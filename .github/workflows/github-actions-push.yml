@@ -4,7 +4,7 @@ on:
 defaults:
   run:
     shell: pwsh
-    working-directory: ci/scripts 
+#    working-directory: ci/scripts 
 jobs:
   Build:
     runs-on: ubuntu-latest
