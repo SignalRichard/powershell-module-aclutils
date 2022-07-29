@@ -14,3 +14,6 @@ jobs:
     - name: Run PSScriptAnalyzer
       run: |
         ./Debug-Scripts.ps1 -Path "$env:GITHUB_WORKSPACE/src/Compendium.AclHelpers"
+    - name: Run Pester Tests
+      run: |
+        ./Test-Module.ps1

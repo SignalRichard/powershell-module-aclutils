@@ -1,8 +1,5 @@
-param(
-    [Parameter(Mandatory = $True)] [String] $GitHubWorkspace
-)
-
-Set-Location -Path $GitHubWorkspace
+./Use-Module -Name 'Pester'
+Set-Location -Path $env:GITHUB_WORKSPACE
 Import-Module -Name 'Pester'
 Get-Module -Name 'Pester'
 Invoke-Pester
