@@ -4,9 +4,10 @@ param (
 
 ./Use-Module -Name 'PSScriptAnalyzer'
 
-$Result = Invoke-Scriptanalyzer -Path $Path -Recurse
-$Result | Format-Table
+Invoke-Scriptanalyzer -Path $Path -Recurse -OutVariable 'Issues'
 
-if ($Null -ne $Result) {
-    throw "$RequiredModule returned issues."
+$Pass = ($Issues | Where-Object { $_.Severity -eq 'Error' }).Count -eq 0
+
+if(-not($Pass)) {
+    Write-Error -Message "Script errors detected." -ErrorAction 'Stop'
 }
