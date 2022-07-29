@@ -4,10 +4,10 @@ on:
 defaults:
   run:
     shell: pwsh
-    working-directory: ci/scripts 
+    working-directory: build/scripts 
 jobs:
   Build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v3
