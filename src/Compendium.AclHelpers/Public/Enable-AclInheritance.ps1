@@ -1,5 +1,5 @@
 function Enable-AclInheritance {
-<#
+    <#
 .SYNOPSIS
 
 Enables ACL inheritance.
@@ -32,17 +32,17 @@ PS> Enable-AclInheritance -Path './Documents' -Recurse
 
     $Root = Resolve-Path -Path $Path
 
-    if($Null -ne $Root) {
+    if ($Null -ne $Root) {
         Write-Verbose "Testing: $Root"
         $Acl = Get-Acl -Path $Root
 
-        if($Acl.AreAccessRulesProtected) {
+        if ($Acl.AreAccessRulesProtected) {
             Write-Verbose "Enabling inheritance on: $Root"
             $Acl.SetAccessRuleProtection($false, $true)
             Set-Acl -Path $Root -AclObject $Acl
         }
 
-        if($Recurse -and (Test-Path -Path $Root -PathType 'Container')) {
+        if ($Recurse -and (Test-Path -Path $Root -PathType 'Container')) {
             Get-ChildItem -Path $Root | ForEach-Object {
                 Enable-AclInheritance -Path $_.FullName -Recurse
             }

@@ -1,5 +1,5 @@
 function Protect-File {
-<#
+    <#
 .SYNOPSIS
 
 Protects the specified file by updating the permissions so that only the current user has access.
@@ -28,7 +28,7 @@ PS> Protect-File -Path './ssh_key.pem'
 
     $File = Resolve-Path -Path $Path
 
-    if(-not(Test-Path -Path "$File" -PathType 'Leaf')) {
+    if (-not(Test-Path -Path "$File" -PathType 'Leaf')) {
         throw "File $File does not exist."
     }
 

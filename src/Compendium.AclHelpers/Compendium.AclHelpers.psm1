@@ -18,7 +18,7 @@ Get-ChildItem -Path $PSScriptRoot -Directory | ForEach-Object {
     } | ForEach-Object {
         Write-Verbose $_.BaseName
         . $PSItem.FullName
-        if($IsPublicModuleMember) {
+        if ($IsPublicModuleMember) {
             Export-ModuleMember -Function $_.BaseName
         }
     }
