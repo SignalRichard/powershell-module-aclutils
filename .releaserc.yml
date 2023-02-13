@@ -1,5 +1,6 @@
 branches:
   - main
+  - features/*
 
 plugins:
   - path: "@semantic-release/commit-analyzer"
