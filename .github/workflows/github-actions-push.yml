@@ -33,17 +33,17 @@ jobs:
     needs: SemanticVersion
     defaults:
       run:
+        shell: pwsh
         working-directory: build/scripts
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Install PowerShell Modules
       run: |
-        cat Packages.ps1
-#        Install-PowerShellModules
+        . ./Packages.ps1
+        Install-PowerShellModules
     - name: Run PSScriptAnalyzer
       run: |
-        Write-Host "GitHub Workspace: $env:GITHUB_WORKSPACE"
         ./Debug-Scripts.ps1 -Path "$env:GITHUB_WORKSPACE/$env:MODULE_SOURCE"
     - name: Run Pester Tests
       run: |
