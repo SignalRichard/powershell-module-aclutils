@@ -1,19 +1,70 @@
 name: compendium.aclhelpers pipeline
 on:
   push
+env:
+  MODULE_SOURCE: src/Compendium.AclHelpers
+  ARTIFACT_NAME: Compendium.AclHelpers
 defaults:
   run:
     shell: pwsh
-    working-directory: build/scripts 
 jobs:
+  SemanticVersion:
+    runs-on: ubuntu-latest
+    outputs:
+      semantic_version: ${{ steps.semantic_release.outputs.SEMANTIC_VERSION }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        persist-credentials: false
+    - name: Setup Node Version
+      uses: actions/setup-node@master
+      with:
+        node-version: 18
+    - name: Node Package Restore
+      run: ./build/scripts/Install-NodePackages.ps1
+    - name: Semantic Release (Dry-Run)
+      id: semantic_release
+      run: ./build/scripts/Invoke-SemanticRelease.ps1 -DryRun
+      env:
+        GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
   Build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
+    needs: SemanticRelease
+    defaults:
+      run:
+        working-directory: build/scripts
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Run PSScriptAnalyzer
       run: |
-        ./Debug-Scripts.ps1 -Path "$env:GITHUB_WORKSPACE/src/Compendium.AclHelpers"
+        ./Debug-Scripts.ps1 -Path "$env:GITHUB_WORKSPACE/$env:MODULE_SOURCE"
     - name: Run Pester Tests
       run: |
         ./Test-Module.ps1
+    - name: Update Module Manifest
+      run: |
+        ./Set-SemanticVersion.ps1 -PSModuleManifestFilePath "$env:GITHUB_WORKSPACE/$env:MODULE_SOURCE/Compendium.AclHelpers.psd1" -SemanticVersion "${{ needs.SemanticVersion.outputs.semantic_version }}"
+    - name: Publish Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ env.MODULE_SOURCE }}
+  Release:
+    runs-on: ubuntu-latest
+    needs:
+    - SemanticRelease
+    - Build
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Download Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: a/${{ env.ARTIFACT_NAME }}
+    - name: Show Directory
+      shell: pwsh
+      working-directory: a
+      run: dir
