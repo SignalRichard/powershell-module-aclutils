@@ -39,10 +39,11 @@ jobs:
       uses: actions/checkout@v3
     - name: Install PowerShell Modules
       run: |
-        . ./Packages.ps1
-        Install-PowerShellModules
+        cat Packages.ps1
+#        Install-PowerShellModules
     - name: Run PSScriptAnalyzer
       run: |
+        Write-Host "GitHub Workspace: $env:GITHUB_WORKSPACE"
         ./Debug-Scripts.ps1 -Path "$env:GITHUB_WORKSPACE/$env:MODULE_SOURCE"
     - name: Run Pester Tests
       run: |
