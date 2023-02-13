@@ -29,7 +29,7 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
   Build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest # MUST be run on Windows because this is a Windows specific module for manipulating Windows filesystem ACL
     needs: SemanticVersion
     defaults:
       run:
