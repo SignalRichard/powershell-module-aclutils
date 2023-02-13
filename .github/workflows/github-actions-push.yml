@@ -72,4 +72,4 @@ jobs:
     - name: Show Directory
       shell: pwsh
       working-directory: a
-      run: dir
+      run: ll
