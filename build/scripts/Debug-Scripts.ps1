@@ -2,7 +2,8 @@ param (
     [Parameter(Mandatory = $True)] [String] $Path
 )
 
-./Use-Module -Name 'PSScriptAnalyzer'
+./Packages.ps1
+Import-PowerShellModules
 
 Invoke-Scriptanalyzer -Path $Path -Recurse -OutVariable 'Issues'
 
