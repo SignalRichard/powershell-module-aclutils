@@ -1,0 +1,123 @@
+name: compendium.aclhelpers pipeline
+on:
+  push:
+  pull_request:
+    branches:
+    - main
+env:
+  MODULE_SOURCE: src/Compendium.AclHelpers
+  ARTIFACT_NAME: Compendium.AclHelpers
+defaults:
+  run:
+    shell: pwsh
+jobs:
+  SemanticVersion:
+    runs-on: ubuntu-latest
+    outputs:
+      semantic_version: ${{ steps.semantic_release.outputs.SEMANTIC_VERSION }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        persist-credentials: false
+    - name: Setup Node Version
+      uses: actions/setup-node@master
+      with:
+        node-version: 18
+    - name: Node Package Restore
+      run: ./build/scripts/Install-NodePackages.ps1
+    - name: Semantic Release (Dry-Run)
+      id: semantic_release
+      run: ./build/scripts/Invoke-SemanticRelease.ps1 -DryRun
+      env:
+        GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
+        GH_REF: ${{ github.ref }}
+  Build:
+    runs-on: windows-latest # MUST be run on Windows because this is a Windows specific module for manipulating Windows filesystem ACL
+    needs: SemanticVersion
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: build/scripts
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Install PowerShell Modules
+      run: |
+        . ./Packages.ps1
+        Install-PowerShellModules
+    - name: Run PSScriptAnalyzer
+      run: |
+        ./Debug-Scripts.ps1 -Path "$env:GITHUB_WORKSPACE/$env:MODULE_SOURCE"
+    - name: Run Pester Tests
+      run: |
+        ./Test-Module.ps1
+    - name: Update Module Manifest
+      run: |
+        ./Set-SemanticVersion.ps1 -PSModuleManifestFilePath "$env:GITHUB_WORKSPACE/$env:MODULE_SOURCE/Compendium.AclHelpers.psd1" -SemanticVersion "${{ needs.SemanticVersion.outputs.semantic_version }}"
+    - name: Publish Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ env.MODULE_SOURCE }}
+  GitHubRelease:
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    needs:
+    - SemanticVersion
+    - Build
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Download Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: a/${{ env.ARTIFACT_NAME }}
+    - name: Setup Node Version
+      uses: actions/setup-node@master
+      with:
+        node-version: 18
+    - name: Node Package Restore
+      run: ./build/scripts/Install-NodePackages.ps1
+    - name: Update Module Manifest
+      run: |
+        ./build/scripts/Set-SemanticVersion.ps1 -PSModuleManifestFilePath "$env:GITHUB_WORKSPACE/$env:MODULE_SOURCE/Compendium.AclHelpers.psd1" -SemanticVersion "${{ needs.SemanticVersion.outputs.semantic_version }}"
+    - name: Create Release Package
+      run: |
+        ./build/scripts/New-ReleasePackage.ps1 -ArtifactPath "$env:GITHUB_WORKSPACE/a/$env:ARTIFACT_NAME" -ReleasePackageFilePath "$env:GITHUB_WORKSPACE/b/$env:ARTIFACT_NAME.zip"
+    - name: Install Microsoft SBOM Tool
+      run: |
+        ./build/scripts/Install-MicrosoftSbomTool.ps1 -OSArch '-linux-x64' -InstallPath "$env:RUNNER_TEMP"
+    - name: Generate SBOM
+      run: |
+        ./build/scripts/New-SoftwareBillOfMaterials.ps1 -ReleasePath "$env:GITHUB_WORKSPACE/b" -SourcePath "$env:GITHUB_WORKSPACE/src" -PackageName $env:ARTIFACT_NAME -Version "${{ needs.SemanticVersion.outputs.semantic_version }}"
+    - name: Semantic Release (Dry-Run)
+      id: semantic_release
+      run: ./build/scripts/Invoke-SemanticRelease.ps1
+      env:
+        GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
+  PowerShellGalleryRelease:
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    needs:
+    - GitHubRelease
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Download Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: a/${{ env.ARTIFACT_NAME }}
+    - name: Publish Module
+      run: |
+        ./build/scripts/Publish-Module.ps1 -ModulePath "$env:GITHUB_WORKSPACE/a/$env:ARTIFACT_NAME" -ReleaseNotesFilePath "$env:GITHUB_WORKSPACE/RELEASE-NOTES.md"
+      env:
+        NUGETAPIKEY: ${{ secrets.NUGETAPIKEY }}

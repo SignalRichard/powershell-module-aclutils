@@ -1,2 +1,2 @@
-# powershell-module-aclutils
-PowerShell module with utility helpers for Windows ACL.
+# Compenidum.AclHelpers
+PowerShell module with helper functions for Windows ACL.
