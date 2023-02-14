@@ -92,6 +92,6 @@ jobs:
         ./build/scripts/New-SoftwareBillOfMaterials.ps1 -ReleasePath "$env:GITHUB_WORKSPACE/b" -SourcePath "$env:GITHUB_WORKSPACE/src" -PackageName $env:ARTIFACT_NAME -Version "${{ needs.SemanticVersion.outputs.semantic_version }}"
     - name: Semantic Release (Dry-Run)
       id: semantic_release
-      run: ./build/scripts/Invoke-SemanticRelease.ps1 -DryRun
+      run: ./build/scripts/Invoke-SemanticRelease.ps1
       env:
         GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
