@@ -1,6 +1,7 @@
 name: compendium.aclhelpers pipeline
 on:
-  push
+  push:
+  pull_request:
 env:
   MODULE_SOURCE: src/Compendium.AclHelpers
   ARTIFACT_NAME: Compendium.AclHelpers
@@ -57,6 +58,7 @@ jobs:
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.MODULE_SOURCE }}
   Release:
+#    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     needs:
     - SemanticVersion
@@ -83,7 +85,7 @@ jobs:
         ./build/scripts/Set-SemanticVersion.ps1 -PSModuleManifestFilePath "$env:GITHUB_WORKSPACE/$env:MODULE_SOURCE/Compendium.AclHelpers.psd1" -SemanticVersion "${{ needs.SemanticVersion.outputs.semantic_version }}"
     - name: Create Release Package
       run: |
-        ./build/scripts/New-ReleasePackage.ps1 -ArtifactPath "$env:GITHUB_WORKSPACE/a" -ReleasePackageFilePath "$env:GITHUB_WORKSPACE/b/$env:ARTIFACT_NAME.zip"
+        ./build/scripts/New-ReleasePackage.ps1 -ArtifactPath "$env:GITHUB_WORKSPACE/a/$env:ARTIFACT_NAME" -ReleasePackageFilePath "$env:GITHUB_WORKSPACE/b/$env:ARTIFACT_NAME.zip"
     - name: Install Microsoft SBOM Tool
       run: |
         ./build/scripts/Install-MicrosoftSbomTool.ps1 -OSArch '-linux-x64' -InstallPath "$env:RUNNER_TEMP"
