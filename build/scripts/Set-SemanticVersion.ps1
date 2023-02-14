@@ -4,7 +4,7 @@ param(
 )
 
 if(Test-Path -Path $PSModuleManifestFilePath) {
-    Update-ModuleManifest -Path $PSModuleManifestFilePath -MOduleVersion $SemanticVersion
+    Update-ModuleManifest -Path $PSModuleManifestFilePath -ModuleVersion $SemanticVersion
 }
 else {
     throw "$PSModuleManifestFilePath does not exist."

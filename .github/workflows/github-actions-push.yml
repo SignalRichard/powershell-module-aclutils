@@ -61,6 +61,9 @@ jobs:
     needs:
     - SemanticVersion
     - Build
+    defaults:
+      run:
+        shell: pwsh
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -69,7 +72,20 @@ jobs:
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: a/${{ env.ARTIFACT_NAME }}
-    - name: Show Directory
-      shell: pwsh
-      working-directory: a
-      run: ll
+    - name: Update Module Manifest
+      run: |
+        ./build/scripts/Set-SemanticVersion.ps1 -PSModuleManifestFilePath "$env:GITHUB_WORKSPACE/$env:MODULE_SOURCE/Compendium.AclHelpers.psd1" -SemanticVersion "${{ needs.SemanticVersion.outputs.semantic_version }}"
+    - name: Create Release Package
+      run: |
+        ./build/scripts/New-ReleasePackage.ps1 -ArtifactPath "$env:GITHUB_WORKSPACE/a" -ReleasePackageFilePath "$env:GITHUB_WORKSPACE/b/$env:ARTIFACT_NAME.zip"
+    - name: Install Microsoft SBOM Tool
+      run: |
+        ./build/scripts/Install-MicrosoftSbomTool.ps1 -OSArch '-linux-x64' -InstallPath "$env:RUNNER_TEMP"
+    - name: Generate SBOM
+      run: |
+        ./build/scripts/New-SoftwareBillOfMaterials.ps1 -ReleasePath "$env:GITHUB_WORKSPACE/b" -SourcePath "$env:GITHUB_WORKSPACE/src" -PackageName $env:ARTIFACT_NAME -Version "${{ needs.SemanticVersion.outputs.semantic_version }}"
+    - name: Semantic Release (Dry-Run)
+      id: semantic_release
+      run: ./build/scripts/Invoke-SemanticRelease.ps1 -DryRun
+      env:
+        GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}

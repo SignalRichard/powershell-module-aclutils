@@ -16,7 +16,14 @@ plugins:
   - path: "@semantic-release/exec"
     verifyReleaseCmd: "echo '${nextRelease.version}' > SEMANTIC-VERSION.txt"
     generateNotesCmd: "echo '${nextRelease.notes}' > RELEASE-NOTES.md"
+  - path: "@semantic-release/github"
+    assets:
+    - path: b/Compendium.AclHelpers.zip
+      label: Compendium.AclHelpers.zip
+    - path: b/_manifest/spdx_2.2/manifest.spdx.json
+      label: manifest.spdx.json
   - path: "@semantic-release/git"
     assets:
     - CHANGELOG.md
     - RELEASE-NOTES.md
+    - src/Compendium.AclHelpers/Compendium.AclHelpers.psd1
