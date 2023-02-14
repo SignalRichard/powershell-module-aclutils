@@ -95,27 +95,11 @@ jobs:
     - name: Generate SBOM
       run: |
         ./build/scripts/New-SoftwareBillOfMaterials.ps1 -ReleasePath "$env:GITHUB_WORKSPACE/b" -SourcePath "$env:GITHUB_WORKSPACE/src" -PackageName $env:ARTIFACT_NAME -Version "${{ needs.SemanticVersion.outputs.semantic_version }}"
-    - name: Semantic Release (Dry-Run)
+    - name: Semantic Release
       id: semantic_release
       run: ./build/scripts/Invoke-SemanticRelease.ps1
       env:
         GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
-  PowerShellGalleryRelease:
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
-    runs-on: ubuntu-latest
-    needs:
-    - GitHubRelease
-    defaults:
-      run:
-        shell: pwsh
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Download Artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: ${{ env.ARTIFACT_NAME }}
-        path: a/${{ env.ARTIFACT_NAME }}
     - name: Publish Module
       run: |
         ./build/scripts/Publish-Module.ps1 -ModulePath "$env:GITHUB_WORKSPACE/a/$env:ARTIFACT_NAME" -ReleaseNotesFilePath "$env:GITHUB_WORKSPACE/RELEASE-NOTES.md"
