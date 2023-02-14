@@ -100,6 +100,7 @@ jobs:
       run: ./build/scripts/Invoke-SemanticRelease.ps1
       env:
         GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
+        GH_REF: ${{ github.ref }}
     - name: Publish Module
       run: |
         ./build/scripts/Publish-Module.ps1 -ModulePath "$env:GITHUB_WORKSPACE/a/$env:ARTIFACT_NAME" -ReleaseNotesFilePath "$env:GITHUB_WORKSPACE/RELEASE-NOTES.md"
