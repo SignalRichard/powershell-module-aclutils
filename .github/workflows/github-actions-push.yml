@@ -72,6 +72,12 @@ jobs:
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: a/${{ env.ARTIFACT_NAME }}
+    - name: Setup Node Version
+      uses: actions/setup-node@master
+      with:
+        node-version: 18
+    - name: Node Package Restore
+      run: ./build/scripts/Install-NodePackages.ps1
     - name: Update Module Manifest
       run: |
         ./build/scripts/Set-SemanticVersion.ps1 -PSModuleManifestFilePath "$env:GITHUB_WORKSPACE/$env:MODULE_SOURCE/Compendium.AclHelpers.psd1" -SemanticVersion "${{ needs.SemanticVersion.outputs.semantic_version }}"
